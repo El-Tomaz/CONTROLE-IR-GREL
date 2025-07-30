@@ -3,32 +3,32 @@
 #include <IRsend.h>
 #include <ir_Midea.h>
 
-//mapa de hardware 
-#define kIrLed 3
+//mapa de hardware
+#define kIrLed 0
 
-#define bUp 
-#define bDown
-#define bOnOff
+#define bUp 2
+#define bDown 3
+#define bOnOff 1
 
 
-IRMideaAC ac(kIrLed);  
+IRMideaAC ac(kIrLed);
 
 void setup() {
-
+  Serial.begin(115200);
   //todo: webserver
   ac.begin();
-
+/*
   pinMode(bUp, INPUT);
   pinMode(bDown, INPUT);
   pinMode(bOnOff, INPUT);
-
+*/
 }
 
 
 void loop() {
-static bool ligado = false;
+  Serial.println("Funfando!");
 
-if(
+  static bool ligado = false;
 
   // Set up what we want to send. See ir_Daikin.cpp for all the options.
   ac.on();
@@ -48,7 +48,5 @@ if(
   ac.send();
 
   delay(5000);
-
-
-
+  ligado  = !ligado;
 }
