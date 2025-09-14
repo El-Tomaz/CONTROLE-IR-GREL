@@ -1,8 +1,4 @@
 
-/* WiFi credentials. Set password to "" for open networks. */
-#define WIFI_SSID                 "espwifi"
-#define WIFI_PASS                 "tomaz123"
-
 /* Fill in information from Blynk Device Info here.
    Read More: https://bit.ly/BlynkSimpleAuth
 */

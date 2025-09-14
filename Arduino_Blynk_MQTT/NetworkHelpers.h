@@ -32,7 +32,7 @@
 
 #if !defined(BLYNK_FIRMWARE_TYPE)
   #define BLYNK_FIRMWARE_TYPE     BLYNK_TEMPLATE_ID
-#endif
+#endif#
 
 #if !defined(BLYNK_FIRMWARE_BUILD)
   #define BLYNK_FIRMWARE_BUILD    __DATE__ " " __TIME__
@@ -46,13 +46,7 @@
   #error "Please define BLYNK_TEMPLATE_ID and BLYNK_TEMPLATE_NAME"
 #endif
 
-#if !defined(WIFI_SSID)
-  #error "Please define WIFI_SSID"
-#endif
 
-#if !defined(WIFI_PASS)
-  #define WIFI_PASS               ""
-#endif
 
 /*
  * Validate boards
@@ -275,10 +269,16 @@ void mqtt_handler_wrapper(char* topic, byte* payload, unsigned length)
   }
 }
 
+
+bool setClock();
+
+
 void connectMQTT()
 {
   mqtt.setServer(broker_host, broker_port);
   mqtt.setCallback(mqtt_handler_wrapper);
+
+
 
   #if defined(BLYNK_MQTT_UNSECURE)
     // For unsecure connections, no certificates needed
@@ -338,6 +338,7 @@ void connectMQTT()
 
   } else {
     Serial.println("FAILED. Check internet connectivity and Blynk credentials.");
+    setClock();
     delay(1000);
   }
 }
@@ -373,28 +374,5 @@ bool setClock()
 }
 #endif
 
-void connectWiFi()
-{
-  Serial.print("Connecting to " WIFI_SSID "...");
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
 
-  uint32_t started = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - started < 10000) {
-    delay(500);
-    Serial.print(".");
-  }
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.print(" IP:");
-    Serial.print(WiFi.localIP());
-    Serial.print(", RSSI:");
-    Serial.print(WiFi.RSSI());
-    Serial.println("dBm");
-#if defined(ESP8266)
-    setClock();
-#endif
-  } else {
-    Serial.println(" FAILED. Check your WiFi credentials.");
-    delay(1000);
-  }
-}
 

@@ -8,6 +8,9 @@
 
 #include <PubSubClient.h>
 #include "NetworkHelpers.h"
+#include <WiFiManager.h>
+
+
 
 // These commands are executed every time
 // the device (re)connects to the Blynk Cloud
@@ -31,36 +34,47 @@ void mqtt_handler(const String& topic, const String& value)
 
 void setup()
 {
+  WiFi.mode(WIFI_STA);
+  WiFi.setAutoReconnect(true);
+  WiFi.persistent(true);
+
+
   Serial.begin(115200);
+
+  WiFiManager wm;
+
+  bool res = wm.autoConnect("Controle_GREL", "Uma onca calma serena");
+
+  if(!res){
+    Serial.println("Falha na conexao :(");
+  }else{
+    Serial.println("Conectado com sucesso!!");
+  }
+
+
+
   // Wait for serial monitor, up to 3 seconds
   while (!Serial && (millis() < 3000)) { delay(10); }
   delay(100);
 
   systemShowDeviceInfo();
-
+  setClock();
 }
 
 void loop()
 {
-  EVERY_N_MILLIS(1000) {
-    String uptime = String(millis() / 1000);
-    mqtt.publish("ds/uptime", uptime.c_str());
-  }
 
-  EVERY_N_MILLIS(15000) {
-    mqtt.publish("ds/rssi", String(WiFi.RSSI()).c_str());
-    mqtt.publish("ds/Integer V4", "22");
-
-  }
 
   // Keep WiFi and MQTT connection
-  if (WiFi.status() != WL_CONNECTED) {
-    connectWiFi();
-  } else if (!mqtt.connected()) {
+  
+
+  if (!mqtt.connected()) {
     connectMQTT();
   } else {
-    mqtt.loop();
+    bool result = mqtt.loop();
   }
 
   delay(10);
+
+
 }
