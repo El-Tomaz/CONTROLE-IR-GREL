@@ -29,16 +29,32 @@ void mqtt_connected()
   mqtt.publish("ds/terminal", "Device connected\n");
 }
 
+struct {
+  int temp = 20;
+  bool on = true;
+} status;
+
+
 // Handle incoming datastream changes
+// cuida do downlink, pux atualizacoes do blynk para a esp
 void mqtt_handler(const String& topic, const String& value)
 {
   Serial.print("Got ");       Serial.print(topic);
   Serial.print(", value: ");  Serial.println(value);
 
+
+  if(topic == "downlink/ds/temp"){
+    status.temp = value.toInt();
+  }else if(topic == "downlink/ds/on"){
+    status.on = value.toInt();
+  }
+
   if (topic == "downlink/ds/terminal") {
     String reply = String("Your command: ") + value;
     mqtt.publish("ds/terminal", reply.c_str());
   }
+
+
 }
 
 void setup()
@@ -78,10 +94,6 @@ void setup()
 
 void loop()
 {
-  static struct {
-    int temp = 20;
-    bool on = true;
-  } status;
 
   bool button_pressed = false; //flag to just send commando to ac and to blynk when button pressed
   static int last_button_state[3] = {1}; // on/off up down
@@ -145,7 +157,10 @@ void loop()
 
   }
 
-  // Keep WiFi and MQTT connection
+
+  // todo: caso perca conexao com mqtt -> reenviar dados
+
+  // MQTT connection
   if (!mqtt.connected()) {
     connectMQTT();
   } else {
